@@ -1,7 +1,7 @@
 {
-  "name": "wormgpt-vantorium",
+  "name": "wormgpt-render",
   "version": "1.0.0",
-  "description": "WormGPT Studio",
+  "description": "WormGPT Render Edition",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
