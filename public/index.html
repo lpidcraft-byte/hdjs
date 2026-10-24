@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WormGPT VANTORIUM</title>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary: #a855f7; --primary-dark: #7e22ce; --bg: #050505; --panel: #121212; --text: #f3f4f6; --border: rgba(255,255,255,0.08); --user-bubble: linear-gradient(135deg, #7e22ce, #4c1d95); --ai-bubble: rgba(20, 20, 20, 0.8); --glow: 0 0 20px rgba(168, 85, 247, 0.3); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); height: 100dvh; display: flex; overflow: hidden; background-image: radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 30%, rgba(0, 123, 255, 0.08) 0%, transparent 40%); }
+
+    .vantorium-global { position: fixed; bottom: 15px; right: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; z-index: 99999; pointer-events: none; opacity: 0.8; background: linear-gradient(90deg, #a855f7, #ec4899, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5)); }
+
+    /* AUTH EKRANI */
+    .auth-container { display: none; width: 100vw; height: 100dvh; align-items: center; justify-content: center; position: fixed; top:0; left:0; z-index: 999; padding: 20px; background: rgba(5,5,5,0.9); backdrop-filter: blur(20px); }
+    .auth-box { background: rgba(20,20,20,0.6); backdrop-filter: blur(30px); padding: 50px; border-radius: 30px; border: 1px solid var(--border); width: 100%; max-width: 440px; box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1); text-align: center; max-height: 90dvh; overflow-y: auto; }
+    .auth-box h1 { color: var(--text); margin-bottom: 30px; font-size: 2.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; letter-spacing: -1px; }
+    .auth-box h1 i { color: var(--primary); filter: drop-shadow(0 0 10px var(--primary)); }
+    .auth-box input { width: 100%; padding: 16px 20px; margin-bottom: 16px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 14px; color: var(--text); font-size: 1rem; outline: none; transition: 0.3s; }
+    .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(168,85,247,0.15); }
+    .auth-box button { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 10px; box-shadow: 0 10px 20px rgba(168,85,247,0.2); }
+    .auth-box button:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(168,85,247,0.4); }
+    .auth-toggle { margin-top: 20px; color: #888; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+    .auth-toggle span { color: var(--primary); font-weight: 600; }
+    .auth-toggle:hover { color: #fff; }
+
+    .captcha-container { margin-bottom: 16px; text-align: left; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 14px; border: 1px solid var(--border); }
+    .captcha-container label { color: #aaa; font-size: 0.85rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .captcha-inner { display: flex; align-items: center; gap: 12px; }
+    .captcha-question { color: var(--primary); font-weight: 800; font-size: 1.2rem; letter-spacing: 2px; text-shadow: 0 0 10px rgba(168,85,247,0.4); }
+    .captcha-inner input { margin-bottom: 0; flex: 1; text-align: center; font-weight: 700; color: var(--primary); }
+
+    /* ANA UYGULAMA */
+    .app-container { display: none; width: 100vw; height: 100dvh; flex-direction: row; }
+    .sidebar { width: 300px; background: rgba(10,10,10,0.6); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: 0.3s; z-index: 10; height: 100%; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .new-chat-btn { width: 100%; padding: 14px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); color: var(--primary); border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.3s; }
+    .new-chat-btn:hover { background: rgba(168, 85, 247, 0.2); box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); }
+    .chat-list { flex: 1; overflow-y: auto; padding: 12px; }
+    .chat-item { padding: 14px 18px; border-radius: 12px; margin-bottom: 6px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: #999; transition: 0.2s; font-size: 0.9rem; font-weight: 500; }
+    .chat-item:hover, .chat-item.active { background: rgba(255,255,255,0.05); color: #fff; }
+    .chat-item.active { border-left: 3px solid var(--primary); background: rgba(168, 85, 247, 0.1); }
+    .chat-item .delete-chat { opacity: 0; color: #ff3b30; cursor: pointer; transition: 0.2s; }
+    .chat-item:hover .delete-chat { opacity: 1; }
+    .sidebar-footer { padding: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); }
+    .user-info { display: flex; align-items: center; gap: 12px; color: #fff; font-weight: 600; font-size: 0.95rem; }
+    .user-info i { color: var(--primary); font-size: 1.6rem; filter: drop-shadow(0 0 5px var(--primary)); }
+    .logout-btn { color: #ff3b30; cursor: pointer; font-size: 1.3rem; transition: 0.2s; }
+
+    .main-chat { flex: 1; display: flex; flex-direction: column; min-height: 0; height: 100%; }
+    .chat-header { padding: 24px 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: rgba(10,10,10,0.5); backdrop-filter: blur(20px); z-index: 4; }
+    .chat-header h2 { font-size: 1.2rem; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .chat-header h2 i { color: var(--primary); }
+
+    .messages-area { flex: 1; overflow-y: auto; padding: 30px 40px; display: flex; flex-direction: column; gap: 24px; min-height: 0; }
+    .message { max-width: 80%; padding: 20px 24px; border-radius: 24px; line-height: 1.7; font-size: 0.95rem; word-wrap: break-word; animation: slideUp 0.4s ease; position: relative; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .message.user { align-self: flex-end; background: var(--user-bubble); border: 1px solid rgba(255,255,255,0.1); border-bottom-right-radius: 6px; color: #fff; }
+    .message.ai { align-self: flex-start; background: var(--ai-bubble); backdrop-filter: blur(20px); border: 1px solid var(--border); border-bottom-left-radius: 6px; color: #e5e7eb; }
+
+    .status-text { font-size: 0.8rem; color: var(--primary); font-style: italic; margin-top: 10px; text-align: right; align-self: flex-end; display: flex; align-items: center; gap: 6px; }
+    .message-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; display: flex; justify-content: flex-end; opacity: 0.4; transition: 0.3s; color: #aaa; }
+    
+    .retry-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 16px; background: rgba(255,255,255,0.05); color: #ccc; border-radius: 10px; font-size: 0.8rem; cursor: pointer; width: fit-content; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+
+    .code-container { background: #000; border-radius: 16px; overflow: hidden; margin: 18px 0; border: 1px solid #333; width: 100%; text-align: left; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+    .code-header { background: #111; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; font-size: 0.8rem; color: #aaa; font-weight: 600; letter-spacing: 1px; }
+    .copy-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; padding: 8px 14px; border-radius: 8px; transition: 0.2s; }
+    .copy-btn:hover { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px rgba(168,85,247,0.4); }
+    pre { margin: 0; padding: 20px; overflow-x: auto; color: #a855f7; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.9rem; line-height: 1.5; }
+    code { font-family: inherit; }
+
+    .input-area-wrapper { background: rgba(10,10,10,0.6); backdrop-filter: blur(20px); border-top: 1px solid var(--border); flex-shrink: 0; padding: 20px 40px 24px 40px; }
+    .input-area { display: flex; gap: 16px; align-items: flex-end; background: rgba(0,0,0,0.4); border-radius: 24px; border: 1px solid var(--border); padding: 8px 8px 8px 20px; transition: 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+    .input-area:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(168,85,247,0.1), inset 0 2px 10px rgba(0,0,0,0.5); }
+    textarea { flex: 1; min-height: 48px; max-height: 150px; background: transparent; border: none; color: var(--text); padding: 12px 0; font-size: 1rem; resize: none; outline: none; line-height: 1.5; }
+    .send-btn { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; border-radius: 18px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 4px 15px rgba(168,85,247,0.3); flex-shrink: 0; }
+    .send-btn:hover { transform: scale(1.05) rotate(-5deg); box-shadow: 0 8px 20px rgba(168,85,247,0.5); }
+    .send-btn:disabled { background: #333; color: #555; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .action-row { display: flex; gap: 12px; margin-top: 16px; align-items: center; }
+    .toggle-btn { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; background: rgba(255,255,255,0.03); color: #888; border: 1px solid rgba(255,255,255,0.05); }
+    .toggle-btn i { font-size: 1.2rem; transition: 0.3s; }
+    .toggle-btn:hover { background: rgba(255,255,255,0.08); color: #ccc; }
+    .toggle-btn.active { background: rgba(168, 85, 247, 0.15); color: var(--primary); border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 15px rgba(168,85,247,0.1); }
+    .toggle-btn.active i { color: var(--primary); text-shadow: 0 0 8px var(--primary); }
+
+    .error-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(255, 59, 48, 0.9); backdrop-filter: blur(10px); color: #fff; padding: 14px 28px; border-radius: 16px; font-weight: 600; opacity: 0; transition: all 0.4s ease; pointer-events: none; z-index: 9999; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(255,59,48,0.3); border: 1px solid rgba(255,255,255,0.2); }
+    .error-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; height: 100dvh; left: -300px; top: 0; }
+      .sidebar.open { left: 0; box-shadow: 20px 0 50px rgba(0,0,0,0.8); }
+      .mobile-menu-btn { display: block !important; }
+      .chat-header { padding: 16px 20px; }
+      .messages-area { padding: 20px 16px; gap: 16px; }
+      .input-area-wrapper { padding: 12px 16px 20px 16px; }
+      .action-row { padding: 0; }
+      .message { max-width: 95%; padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="vantorium-global">BY VANTORIUM TEAM</div>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <div class="auth-container" id="auth-screen">
+    <div class="auth-box">
+      <h1><i class="ph ph-sketch-logo"></i> WormGPT</h1>
+      <div id="auth-title" style="margin-bottom: 24px; color: #888; font-weight: 500;">Giriş Yap</div>
+      
+      <input type="text" id="auth-user" placeholder="Kullanıcı Adı" autocomplete="off">
+      
+      <div id="register-email-wrap" style="display: none;">
+        <input type="email" id="auth-email" placeholder="E-posta Adresi" autocomplete="off">
+      </div>
+
+      <input type="password" id="auth-pass" placeholder="Şifre">
+      
+      <div id="register-fields" style="display: none;">
+        <input type="password" id="auth-pass-confirm" placeholder="Şifreyi Tekrar Gir">
+        
+        <div class="captcha-container" id="captcha-container">
+          <label><i class="ph ph-shield-check" style="color:var(--primary);"></i> Bot olmadığını kanıtla</label>
+          <div class="captcha-inner">
+            <span class="captcha-question" id="captcha-question">0 + 0 =</span>
+            <input type="number" id="auth-captcha" placeholder="?">
+          </div>
+        </div>
+      </div>
+
+      <button id="auth-btn" onclick="handleAuth()">Giriş Yap</button>
+      <div class="auth-toggle" onclick="toggleAuth()" id="auth-toggle-text">Hesabın yok mu? <span>Kaydol</span></div>
+    </div>
+  </div>
+
+  <div class="app-container" id="app-screen">
+    
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="new-chat-btn" onclick="createNewChat(); closeSidebar();">
+          <i class="ph ph-plus-circle" style="font-size:1.3rem;"></i> Yeni Proje
+        </button>
+      </div>
+      <div class="chat-list" id="chat-list"></div>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <i class="ph ph-user-circle"></i>
+          <span id="display-username">Kullanıcı</span>
+        </div>
+        <div class="logout-btn" onclick="handleLogout()" title="Çıkış Yap">
+          <i class="ph ph-sign-out"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-chat">
+      <div class="chat-header">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <i class="ph ph-list mobile-menu-btn" style="display:none; font-size: 1.6rem; cursor:pointer; color:#fff;" onclick="openSidebar()"></i>
+          <h2><i class="ph ph-terminal-window"></i> <span id="chat-title">WormGPT Studio</span></h2>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--primary); font-weight: 800; letter-spacing: 2px;">VANTORIUM</div>
+      </div>
+      
+      <div class="messages-area" id="messages-area"></div>
+
+      <div class="input-area-wrapper">
+        <div class="input-area">
+          <textarea id="aciklama" placeholder="Ne tasarlamak istiyorsun? (Video, animasyon, kod...)" rows="1"></textarea>
+          <button class="send-btn" id="gonder" onclick="sendMessage()"><i class="ph ph-arrow-up"></i></button>
+        </div>
+        
+        <div class="action-row">
+          <button class="toggle-btn active" id="btn-think" onclick="toggleThink()">
+            <i class="ph ph-brain"></i> Düşün
+          </button>
+          <button class="toggle-btn" id="btn-video" onclick="toggleVideo()">
+            <i class="ph ph-video-camera"></i> Video Tasarım
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="error-toast" id="error-toast"></div>
+
+  <script>
+    let isLogin = true;
+    let currentUser = null;
+    let currentChatId = null;
+    let chatHistory = [];
+    let allChats = {};
+    let captchaExpected = 0;
+    
+    let isThinkEnabled = true;
+    let isVideoEnabled = false;
+
+    const errorEl = document.getElementById('error-toast');
+    const messagesArea = document.getElementById('messages-area');
+    const aciklama = document.getElementById('aciklama');
+    const btn = document.getElementById('gonder');
+
+    function getUsers() { return JSON.parse(localStorage.getItem('worm_users') || '{}'); }
+    function saveUsers(users) { localStorage.setItem('worm_users', JSON.stringify(users)); }
+    function getChats() { return JSON.parse(localStorage.getItem('worm_chats') || '{}'); }
+    function saveChats(chats) { localStorage.setItem('worm_chats', JSON.stringify(chats)); }
+    function getSession() { return JSON.parse(localStorage.getItem('worm_session') || 'null'); }
+    function saveSession(user) { localStorage.setItem('worm_session', JSON.stringify(user)); }
+    function clearSession() { localStorage.removeItem('worm_session'); }
+
+    function toggleThink() {
+      isThinkEnabled = !isThinkEnabled;
+      document.getElementById('btn-think').classList.toggle('active', isThinkEnabled);
+    }
+
+    function toggleVideo() {
+      isVideoEnabled = !isVideoEnabled;
+      document.getElementById('btn-video').classList.toggle('active', isVideoEnabled);
+    }
+
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebar-overlay').classList.add('show');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('show');
+    }
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('show');
+      setTimeout(() => errorEl.classList.remove('show'), 5000);
+    }
+
+    function generateCaptcha() {
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
+      captchaExpected = a + b;
+      document.getElementById('captcha-question').innerText = `${a} + ${b} =`;
+      document.getElementById('auth-captcha').value = '';
+    }
+
+    generateCaptcha();
+
+    function toggleAuth() {
+      isLogin = !isLogin;
+      document.getElementById('auth-title').innerText = isLogin ? 'Giriş Yap' : 'Kaydol';
+      document.getElementById('auth-btn').innerText = isLogin ? 'Giriş Yap' : 'Kayıt Ol';
+      document.getElementById('auth-toggle-text').innerHTML = isLogin ? 'Hesabın yok mu? <span>Kaydol</span>' : 'Zaten hesabın var mı? <span>Giriş Yap</span>';
+      
+      document.getElementById('auth-user').placeholder = isLogin ? 'Kullanıcı Adı' : 'Kullanıcı Adı';
+      document.getElementById('register-email-wrap').style.display = isLogin ? 'none' : 'block';
+      document.getElementById('register-fields').style.display = isLogin ? 'none' : 'block';
+      
+      if (!isLogin) generateCaptcha();
+    }
+
+    function handleAuth() {
+      const user = document.getElementById('auth-user').value.trim();
+      const pass = document.getElementById('auth-pass').value.trim();
+      
+      if (!user || !pass) return showError('Kullanıcı adı ve şifre boş olamaz amına koyayım.');
+
+      const users = getUsers();
+
+      if (!isLogin) {
+        const email = document.getElementById('auth-email').value.trim();
+        const passConfirm = document.getElementById('auth-pass-confirm').value.trim();
+        const captchaInput = parseInt(document.getElementById('auth-captcha').value.trim());
+        
+        if (!email || !passConfirm) return showError('Lütfen tüm alanları doldur siktir.');
+        if (isNaN(captchaInput) || captchaInput !== captchaExpected) {
+          generateCaptcha(); 
+          return showError('Captcha yanlış, bot musun olm sen? 🤬');
+        }
+        if (users[user]) return showError('Bu kullanıcı adı zaten alınmış siktir.');
+
+        users[user] = { password: pass, email: email };
+        saveUsers(users);
+        showError('Kayıt başarılı, giriş yapılıyor...');
+      }
+
+      if (!users[user] || users[user].password !== pass) {
+        return showError('Kullanıcı adı veya şifre yanlış siktir.');
+      }
+
+      saveSession(user);
+      initApp(user);
+    }
+
+    function handleLogout() {
+      clearSession();
+      location.reload();
+    }
+
+    function checkSession() {
+      const session = getSession();
+      if (session) {
+        initApp(session);
+      } else {
+        document.getElementById('auth-screen').style.display = 'flex';
+      }
+    }
+
+    function initApp(username) {
+      currentUser = username;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'flex';
+      document.getElementById('display-username').innerText = username;
+      loadChatList();
+    }
+
+    function loadChatList() {
+      allChats = getChats()[currentUser] || {};
+      
+      const list = document.getElementById('chat-list');
+      list.innerHTML = '';
+      Object.keys(allChats).reverse().forEach(id => {
+        const div = document.createElement('div');
+        div.className = 'chat-item' + (id === currentChatId ? ' active' : '');
+        div.innerHTML = `<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${allChats[id].title}</span><i class="ph ph-trash delete-chat" onclick="deleteChat(event, '${id}')"></i>`;
+        div.onclick = () => { loadChat(id); closeSidebar(); };
+        list.appendChild(div);
+      });
+    }
+
+    function createNewChat() {
+      const id = 'chat_' + Date.now();
+      let chats = getChats();
+      if (!chats[currentUser]) chats[currentUser] = {};
+      
+      chats[currentUser][id] = { title: 'Yeni Proje', messages: [] };
+      saveChats(chats);
+      
+      currentChatId = id;
+      chatHistory = [];
+      loadChatList();
+      loadChat(id);
+    }
+
+    function deleteChat(e, id) {
+      e.stopPropagation();
+      if (!confirm('Bu projeyi sikeyim mi?')) return;
+      
+      let chats = getChats();
+      if (chats[currentUser] && chats[currentUser][id]) {
+        delete chats[currentUser][id];
+        saveChats(chats);
+      }
+      
+      if (currentChatId === id) {
+        currentChatId = null;
+        messagesArea.innerHTML = '';
+        document.getElementById('chat-title').innerText = 'WormGPT Studio';
+      }
+      loadChatList();
+    }
+
+    function loadChat(id) {
+      currentChatId = id;
+      const chats = getChats()[currentUser] || {};
+      const chat = chats[id];
+      
+      if (!chat) return;
+      
+      document.getElementById('chat-title').innerText = chat.title;
+      loadChatList();
+      
+      chatHistory = chat.messages || [];
+      messagesArea.innerHTML = '';
+      
+      chatHistory.forEach(msg => addMessageToScreen(msg.role, msg.content));
+      scrollBottom();
+    }
+
+    function saveCurrentChat(title = null) {
+      if (!currentChatId) return;
+      let chats = getChats();
+      if (!chats[currentUser]) chats[currentUser] = {};
+      
+      if (!chats[currentUser][currentChatId]) chats[currentUser][currentChatId] = { title: 'Yeni Proje', messages: [] };
+      
+      chats[currentUser][currentChatId].messages = chatHistory;
+      if (title) chats[currentUser][currentChatId].title = title;
+      
+      saveChats(chats);
+      loadChatList();
+    }
+
+    function scrollBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
+
+    aciklama.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    aciklama.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    function copyCode(id) {
+      const codeText = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        showError('Kod kopyalandı siktir! 📋');
+      }).catch(err => {
+        showError('Kopyalayamadım: ' + err);
+      });
+    }
+
+    function formatMessage(text) {
+      let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      
+      const codeBlockRegex = /```(?:[a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
+      let hasCodeBlock = false;
+      
+      let html = safeText.replace(codeBlockRegex, function(match, code) {
+        hasCodeBlock = true;
+        const id = 'code_' + Math.random().toString(36).substr(2, 9);
+        return `
+        <div class="code-container">
+            <div class="code-header">
+                <span><i class="ph ph-code"></i> KOD</span>
+                <button class="copy-btn" onclick="copyCode('${id}')"><i class="ph ph-copy"></i> Kopyala</button>
+            </div>
+            <pre><code id="${id}">${code.trim()}</code></pre>
+        </div>`;
+      });
+
+      if (!hasCodeBlock && (text.includes('<!DOCTYPE html>') || text.includes('<html'))) {
+        const id = 'code_' + Math.random().toString(36).substr(2, 9);
+        html = `
+        <div class="code-container">
+            <div class="code-header">
+                <span><i class="ph ph-file-html"></i> HTML KODU</span>
+                <button class="copy-btn" onclick="copyCode('${id}')"><i class="ph ph-copy"></i> Kopyala</button>
+            </div>
+            <pre><code id="${id}">${safeText.trim()}</code></pre>
+        </div>`;
+      } else if (!hasCodeBlock) {
+        html = text.replace(/\n/g, '<br>');
+      }
+
+      return html;
+    }
+
+    function addMessageToScreen(role, text) {
+      const div = document.createElement('div');
+      div.classList.add('message', role);
+      
+      const contentDiv = document.createElement('div');
+      contentDiv.classList.add('message-content');
+      contentDiv.innerHTML = formatMessage(text);
+      div.appendChild(contentDiv);
+
+      if (role === 'ai') {
+        const retryBtn = document.createElement('div');
+        retryBtn.className = 'retry-btn';
+        retryBtn.innerHTML = '<i class="ph ph-arrows-clockwise"></i> Tekrar Dene';
+        retryBtn.onclick = async () => {
+          const prevUserMsg = chatHistory.filter(m => m.role === 'user').pop();
+          if (!prevUserMsg) return;
+          
+          chatHistory.pop(); 
+          try {
+            const data = await generateAIMessage(prevUserMsg.content);
+            contentDiv.innerHTML = formatMessage(data);
+            chatHistory.push({ role: 'assistant', content: data });
+            saveCurrentChat();
+          } catch (err) {
+            contentDiv.innerHTML = 'Hata: ' + err.message;
+          }
+        };
+        div.appendChild(retryBtn);
+      }
+
+      const footer = document.createElement('div');
+      footer.classList.add('message-footer');
+      footer.innerHTML = '<span>BY VANTORIUM TEAM</span>';
+      div.appendChild(footer);
+
+      messagesArea.appendChild(div);
+      scrollBottom();
+      return div;
+    }
+
+    async function generateAIMessage(metin) {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: metin, 
+          history: chatHistory.slice(-50),
+          isVideoEnabled: isVideoEnabled 
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Sunucu hatası siktir.');
+      
+      return data.cevap;
+    }
+
+    async function sendMessage() {
+      const metin = aciklama.value.trim();
+      if (!metin) return;
+      if (!currentChatId) createNewChat();
+
+      aciklama.value = '';
+      aciklama.style.height = 'auto';
+      
+      addMessageToScreen('user', metin);
+      chatHistory.push({ role: 'user', content: metin });
+      
+      let title = null;
+      const chats = getChats()[currentUser] || {};
+      if (chats[currentChatId] && chats[currentChatId].title === 'Yeni Proje') {
+        title = metin.substring(0, 20) + '...';
+        document.getElementById('chat-title').innerText = title;
+      }
+      saveCurrentChat(title);
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ph ph-spinner-gap" style="animation: spin 1s linear infinite;"></i>';
+
+      try {
+        const aiDiv = addMessageToScreen('ai', '');
+        const contentDiv = aiDiv.querySelector('.message-content');
+        
+        let statusText = "Düşünüyor...";
+        if (isVideoEnabled) statusText = "Video tasarlanıyor...";
+        
+        contentDiv.innerHTML = `<span class="status-text" style="margin-top:0;"><i class="ph ph-spinner-gap" style="animation: spin 1s linear infinite;"></i> ${statusText}</span>`;
+        
+        const data = await generateAIMessage(metin);
+        contentDiv.innerHTML = formatMessage(data);
+        
+        chatHistory.push({ role: 'assistant', content: data });
+        saveCurrentChat();
+      } catch (err) {
+        showError('Hata: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ph ph-arrow-up"></i>';
+      }
+    }
+
+    checkSession();
+  </script>
+</body>
+</html>
