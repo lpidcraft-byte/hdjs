@@ -1,0 +1,8 @@
+{
+  "name": "wormgpt-vantorium",
+  "version": "1.0.0",
+  "description": "WormGPT Netlify Edition",
+  "main": "index.html",
+  "dependencies": {},
+  "devDependencies": {}
+}
