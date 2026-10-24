@@ -2,14 +2,29 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>WormGPT VANTORIUM</title>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root { --primary: #a855f7; --primary-dark: #7e22ce; --bg: #050505; --panel: #121212; --text: #f3f4f6; --border: rgba(255,255,255,0.08); --user-bubble: linear-gradient(135deg, #7e22ce, #4c1d95); --ai-bubble: rgba(20, 20, 20, 0.8); --glow: 0 0 20px rgba(168, 85, 247, 0.3); }
+    :root { 
+      --primary: #a855f7; 
+      --primary-dark: #7e22ce; 
+      --bg: #050505; 
+      --panel: #121212; 
+      --text: #f3f4f6; 
+      --border: rgba(255,255,255,0.08); 
+      --user-bubble: linear-gradient(135deg, #7e22ce, #4c1d95); 
+      --ai-bubble: rgba(20, 20, 20, 0.8); 
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background: var(--bg); color: var(--text); height: 100dvh; display: flex; overflow: hidden; background-image: radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 30%, rgba(0, 123, 255, 0.08) 0%, transparent 40%); }
+    
+    body { 
+      background: var(--bg); color: var(--text); 
+      height: 100vh; height: 100dvh; /* Mobil için kritik düzeltme */
+      display: flex; flex-direction: column; overflow: hidden; 
+      background-image: radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 30%, rgba(0, 123, 255, 0.08) 0%, transparent 40%); 
+    }
 
     .vantorium-global { position: fixed; bottom: 15px; right: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; z-index: 99999; pointer-events: none; opacity: 0.8; background: linear-gradient(90deg, #a855f7, #ec4899, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5)); }
 
@@ -49,7 +64,7 @@
     .user-info i { color: var(--primary); font-size: 1.6rem; filter: drop-shadow(0 0 5px var(--primary)); }
     .logout-btn { color: #ff3b30; cursor: pointer; font-size: 1.3rem; transition: 0.2s; }
 
-    .main-chat { flex: 1; display: flex; flex-direction: column; min-height: 0; height: 100%; }
+    .main-chat { flex: 1; display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
     .chat-header { padding: 24px 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: rgba(10,10,10,0.5); backdrop-filter: blur(20px); z-index: 4; }
     .chat-header h2 { font-size: 1.2rem; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 10px; }
     .chat-header h2 i { color: var(--primary); }
@@ -61,7 +76,6 @@
 
     .status-text { font-size: 0.8rem; color: var(--primary); font-style: italic; margin-top: 10px; text-align: right; align-self: flex-end; display: flex; align-items: center; gap: 6px; }
     .message-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; display: flex; justify-content: flex-end; opacity: 0.4; transition: 0.3s; color: #aaa; }
-    
     .retry-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 16px; background: rgba(255,255,255,0.05); color: #ccc; border-radius: 10px; font-size: 0.8rem; cursor: pointer; width: fit-content; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
 
     .code-container { background: #000; border-radius: 16px; overflow: hidden; margin: 18px 0; border: 1px solid #333; width: 100%; text-align: left; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
@@ -99,7 +113,7 @@
       .chat-header { padding: 16px 20px; }
       .messages-area { padding: 20px 16px; gap: 16px; }
       .input-area-wrapper { padding: 12px 16px 20px 16px; }
-      .action-row { padding: 0; }
+      .action-row { padding: 0; flex-wrap: wrap; }
       .message { max-width: 95%; padding: 16px; }
     }
   </style>
@@ -173,7 +187,7 @@
 
       <div class="input-area-wrapper">
         <div class="input-area">
-          <textarea id="aciklama" placeholder="Ne tasarlamak istiyorsun? (Video, animasyon, kod...)" rows="1"></textarea>
+          <textarea id="aciklama" placeholder="Ne tasarlamak istiyorsun?" rows="1"></textarea>
           <button class="send-btn" id="gonder" onclick="sendMessage()"><i class="ph ph-arrow-up"></i></button>
         </div>
         
@@ -193,6 +207,7 @@
   <div class="error-toast" id="error-toast"></div>
 
   <script>
+    // ... BÜTÜN JS KODU AYNI KALACAK ...
     let isLogin = true;
     let currentUser = null;
     let currentChatId = null;
