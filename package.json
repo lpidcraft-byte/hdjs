@@ -1,8 +1,15 @@
 {
   "name": "wormgpt-vantorium",
   "version": "1.0.0",
-  "description": "WormGPT Netlify Edition",
-  "main": "index.html",
-  "dependencies": {},
-  "devDependencies": {}
+  "description": "WormGPT Studio",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
