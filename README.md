@@ -1,2 +1,0 @@
-# hdjs
-Sorgucu bu he
