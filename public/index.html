@@ -45,22 +45,21 @@
     .chat-header h2 i { color: var(--primary); }
 
     .messages-area { flex: 1; overflow-y: auto; padding: 30px 40px; display: flex; flex-direction: column; gap: 24px; min-height: 0; }
-    .message { max-width: 80%; padding: 20px 24px; border-radius: 24px; line-height: 1.7; font-size: 0.95rem; word-wrap: break-word; display: flex; flex-direction: column; }
-    .message.user { align-self: flex-end; background: var(--user-bubble); border-bottom-right-radius: 6px; color: #fff; }
-    .message.ai { align-self: flex-start; background: var(--ai-bubble); backdrop-filter: blur(20px); border: 1px solid var(--border); border-bottom-left-radius: 6px; color: #e5e7eb; }
+    .message { max-width: 100%; padding: 20px 24px; border-radius: 24px; line-height: 1.7; font-size: 0.95rem; word-wrap: break-word; display: flex; flex-direction: column; }
+    .message.user { align-self: flex-end; background: var(--user-bubble); border-bottom-right-radius: 6px; color: #fff; max-width: 80%; }
+    .message.ai { align-self: flex-start; background: var(--ai-bubble); backdrop-filter: blur(20px); border: 1px solid var(--border); border-bottom-left-radius: 6px; color: #e5e7eb; width: 100%; }
 
     .status-text { font-size: 0.8rem; color: var(--primary); font-style: italic; margin-top: 10px; text-align: right; align-self: flex-end; display: flex; align-items: center; gap: 6px; }
     .message-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; display: flex; justify-content: flex-end; opacity: 0.4; color: #aaa; }
     .retry-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 16px; background: rgba(255,255,255,0.05); color: #ccc; border-radius: 10px; font-size: 0.8rem; cursor: pointer; width: fit-content; border: 1px solid rgba(255,255,255,0.1); }
 
-    /* RESİM VE VİDEO İÇİN SİKTİR EDİLESİ CSS */
-    .generated-image { max-width: 100%; border-radius: 16px; margin: 15px 0; border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(168,85,247,0.2); }
+    .generated-image { max-width: 100%; border-radius: 16px; margin: 15px 0; border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(168,85,247,0.2); display: block; }
     .generated-video { max-width: 100%; border-radius: 16px; margin: 15px 0; border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(168,85,247,0.2); outline: none; }
 
-    .code-container { background: #000; border-radius: 16px; overflow: hidden; margin: 18px 0; border: 1px solid #333; width: 100%; }
+    .code-container { background: #000; border-radius: 16px; overflow: hidden; margin: 18px 0; border: 1px solid #333; width: 100%; max-width: 100%; text-align: left; }
     .code-header { background: #111; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; font-size: 0.8rem; color: #aaa; }
     .copy-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; padding: 8px 14px; border-radius: 8px; }
-    pre { margin: 0; padding: 20px; overflow-x: auto; color: #a855f7; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.9rem; line-height: 1.5; }
+    pre { margin: 0; padding: 20px; overflow-x: auto; color: #a855f7; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.85rem; line-height: 1.5; white-space: pre; }
 
     .input-area-wrapper { background: rgba(10,10,10,0.6); border-top: 1px solid var(--border); flex-shrink: 0; padding: 20px 40px 24px 40px; }
     .input-area { display: flex; gap: 16px; align-items: flex-end; background: rgba(0,0,0,0.4); border-radius: 24px; border: 1px solid var(--border); padding: 8px 8px 8px 20px; }
@@ -82,6 +81,7 @@
       .messages-area { padding: 20px 16px; }
       .input-area-wrapper { padding: 12px 16px 20px 16px; }
       .message { max-width: 95%; padding: 16px; }
+      .message.ai { width: 100%; }
     }
   </style>
 </head>
@@ -327,18 +327,17 @@
       navigator.clipboard.writeText(codeText).then(() => showError('Kod kopyalandı siktir! 📋')).catch(err => showError('Kopyalayamadım: ' + err));
     }
 
-    // SİKTİR EDİLESİ FORMAT FONKSİYONU: RESİM VE KOD DESTEKLİ
     function formatMessage(text) {
       let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       
-      // RESİM ETİKETLERİNİ YAKALA VE POLLINATIONS İLE OLUŞTUR
+      // SİKTİR, RESİM ETİKETİ
       const imgRegex = /\[IMG\](.*?)\[\/IMG\]/gs;
       safeText = safeText.replace(imgRegex, function(match, prompt) {
         const cleanPrompt = encodeURIComponent(prompt.trim());
         return `<img src="https://image.pollinations.ai/prompt/${cleanPrompt}?width=1024&height=1024&nologo=true&seed=${Math.random()}" class="generated-image" alt="Üretilen Resim">`;
       });
 
-      // KOD BLOKLARINI YAKALA
+      // SİKTİR, KOD ETİKETİ
       const codeBlockRegex = /```(?:[a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
       let hasCodeBlock = false;
       let html = safeText.replace(codeBlockRegex, function(match, code) {
@@ -449,10 +448,10 @@
         const data = await generateAIMessage(metin);
         contentDiv.innerHTML = formatMessage(data);
         
-        // SİKTİR, EĞER VİDEO İSTENDİYSE VE DATA'DA VİDEO VARSA EKLE
-        if (isVideoEnabled) {
-            // Örnek bir video URL'si (gerçekte bir video üretim API'sine bağlanabilir)
-            const videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        // SİKTİR, VİDEO İSTENDİYSE VE VİDEO BUTONU AÇIKSA EKLE
+        if (isVideoEnabled && !metin.toLowerCase().includes('resim') && !metin.toLowerCase().includes('fotoğraf')) {
+            // Google'ın patlak linkini siktir ettim, çalışan bir link koydum
+            const videoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
             contentDiv.innerHTML += `
                 <video class="generated-video" controls>
                     <source src="${videoUrl}" type="video/mp4">
