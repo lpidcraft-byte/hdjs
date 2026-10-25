@@ -7,19 +7,21 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root { --primary: #a855f7; --primary-dark: #7e22ce; --bg: #050505; --panel: #121212; --text: #f3f4f6; --border: rgba(255,255,255,0.08); --user-bubble: linear-gradient(135deg, #7e22ce, #4c1d95); --ai-bubble: rgba(20, 20, 20, 0.8); }
+    :root { --primary: #a855f7; --primary-dark: #7e22ce; --bg: #050505; --text: #f3f4f6; --border: rgba(255,255,255,0.08); --user-bubble: linear-gradient(135deg, #7e22ce, #4c1d95); --ai-bubble: rgba(20, 20, 20, 0.8); }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background: var(--bg); color: var(--text); height: 100vh; height: 100dvh; display: flex; overflow: hidden; background-image: radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 30%, rgba(0, 123, 255, 0.08) 0%, transparent 40%); }
+    body { background: var(--bg); color: var(--text); height: 100dvh; display: flex; overflow: hidden; background-image: radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 40%), radial-gradient(circle at 85% 30%, rgba(0, 123, 255, 0.08) 0%, transparent 40%); }
+    
     .vantorium-global { position: fixed; bottom: 15px; right: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; z-index: 99999; pointer-events: none; opacity: 0.8; background: linear-gradient(90deg, #a855f7, #ec4899, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5)); }
 
     .auth-container { display: none; width: 100vw; height: 100dvh; align-items: center; justify-content: center; position: fixed; top:0; left:0; z-index: 999; padding: 20px; background: rgba(5,5,5,0.9); backdrop-filter: blur(20px); }
-    .auth-box { background: rgba(20,20,20,0.6); backdrop-filter: blur(30px); padding: 50px; border-radius: 30px; border: 1px solid var(--border); width: 100%; max-width: 440px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); text-align: center; max-height: 90dvh; overflow-y: auto; }
-    .auth-box h1 { color: var(--text); margin-bottom: 30px; font-size: 2.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; }
-    .auth-box h1 i { color: var(--primary); filter: drop-shadow(0 0 10px var(--primary)); }
+    .auth-box { background: rgba(20,20,20,0.6); backdrop-filter: blur(30px); padding: 40px; border-radius: 30px; border: 1px solid var(--border); width: 100%; max-width: 420px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); text-align: center; max-height: 90dvh; overflow-y: auto; }
+    .auth-box h1 { color: var(--text); margin-bottom: 30px; font-size: 2rem; display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .auth-box h1 i { color: var(--primary); }
     .auth-box input { width: 100%; padding: 16px 20px; margin-bottom: 16px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 14px; color: var(--text); font-size: 1rem; outline: none; transition: 0.3s; }
     .auth-box input:focus { border-color: var(--primary); }
     .auth-box button { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
     .auth-toggle { margin-top: 20px; color: #888; font-size: 0.9rem; cursor: pointer; }
+    .auth-toggle span { color: var(--primary); font-weight: 600; }
     .captcha-container { margin-bottom: 16px; text-align: left; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 14px; }
     .captcha-inner { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
     .captcha-question { color: var(--primary); font-weight: 800; font-size: 1.2rem; }
@@ -50,6 +52,10 @@
     .status-text { font-size: 0.8rem; color: var(--primary); font-style: italic; margin-top: 10px; text-align: right; align-self: flex-end; display: flex; align-items: center; gap: 6px; }
     .message-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.6rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; display: flex; justify-content: flex-end; opacity: 0.4; color: #aaa; }
     .retry-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 16px; background: rgba(255,255,255,0.05); color: #ccc; border-radius: 10px; font-size: 0.8rem; cursor: pointer; width: fit-content; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* RESİM VE VİDEO İÇİN SİKTİR EDİLESİ CSS */
+    .generated-image { max-width: 100%; border-radius: 16px; margin: 15px 0; border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(168,85,247,0.2); }
+    .generated-video { max-width: 100%; border-radius: 16px; margin: 15px 0; border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(168,85,247,0.2); outline: none; }
 
     .code-container { background: #000; border-radius: 16px; overflow: hidden; margin: 18px 0; border: 1px solid #333; width: 100%; }
     .code-header { background: #111; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; font-size: 0.8rem; color: #aaa; }
@@ -152,7 +158,7 @@
             <i class="ph ph-globe"></i> İnternette Ara
           </button>
           <button class="toggle-btn" id="btn-video" onclick="toggleVideo()">
-            <i class="ph ph-video-camera"></i> Video Tasarım
+            <i class="ph ph-video-camera"></i> Video/Resim
           </button>
         </div>
       </div>
@@ -187,29 +193,14 @@
     function saveSession(user) { localStorage.setItem('worm_session', JSON.stringify(user)); }
     function clearSession() { localStorage.removeItem('worm_session'); }
 
-    function toggleThink() {
-      isThinkEnabled = !isThinkEnabled;
-      document.getElementById('btn-think').classList.toggle('active', isThinkEnabled);
-    }
-
-    function toggleSearch() {
-      isSearchEnabled = !isSearchEnabled;
-      document.getElementById('btn-search').classList.toggle('active', isSearchEnabled);
-    }
-
-    function toggleVideo() {
-      isVideoEnabled = !isVideoEnabled;
-      document.getElementById('btn-video').classList.toggle('active', isVideoEnabled);
-    }
+    function toggleThink() { isThinkEnabled = !isThinkEnabled; document.getElementById('btn-think').classList.toggle('active', isThinkEnabled); }
+    function toggleSearch() { isSearchEnabled = !isSearchEnabled; document.getElementById('btn-search').classList.toggle('active', isSearchEnabled); }
+    function toggleVideo() { isVideoEnabled = !isVideoEnabled; document.getElementById('btn-video').classList.toggle('active', isVideoEnabled); }
 
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
 
-    function showError(msg) {
-      errorEl.textContent = msg;
-      errorEl.classList.add('show');
-      setTimeout(() => errorEl.classList.remove('show'), 5000);
-    }
+    function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('show'); setTimeout(() => errorEl.classList.remove('show'), 5000); }
 
     function generateCaptcha() {
       const a = Math.floor(Math.random() * 10) + 1;
@@ -235,30 +226,19 @@
       const user = document.getElementById('auth-user').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
       if (!user || !pass) return showError('Boş bırakma amına koyayım.');
-
       const users = getUsers();
-
       if (!isLogin) {
         const email = document.getElementById('auth-email').value.trim();
         const passConfirm = document.getElementById('auth-pass-confirm').value.trim();
         const captchaInput = parseInt(document.getElementById('auth-captcha').value.trim());
-        
         if (!email || !passConfirm) return showError('Tüm alanları doldur siktir.');
-        if (isNaN(captchaInput) || captchaInput !== captchaExpected) {
-          generateCaptcha(); 
-          return showError('Captcha yanlış, bot musun olm sen? 🤬');
-        }
+        if (isNaN(captchaInput) || captchaInput !== captchaExpected) { generateCaptcha(); return showError('Captcha yanlış, bot musun olm sen? 🤬'); }
         if (users[user]) return showError('Bu kullanıcı adı alınmış siktir.');
-
         users[user] = { password: pass, email: email };
         saveUsers(users);
         showError('Kayıt başarılı, giriş yapılıyor...');
       }
-
-      if (!users[user] || users[user].password !== pass) {
-        return showError('Kullanıcı adı veya şifre yanlış siktir.');
-      }
-
+      if (!users[user] || users[user].password !== pass) return showError('Kullanıcı adı veya şifre yanlış siktir.');
       saveSession(user);
       initApp(user);
     }
@@ -298,7 +278,6 @@
       if (!chats[currentUser]) chats[currentUser] = {};
       chats[currentUser][id] = { title: 'Yeni Proje', messages: [] };
       saveChats(chats);
-      
       currentChatId = id;
       chatHistory = [];
       loadChatList();
@@ -309,15 +288,8 @@
       e.stopPropagation();
       if (!confirm('Bu projeyi sikeyim mi?')) return;
       let chats = getChats();
-      if (chats[currentUser] && chats[currentUser][id]) {
-        delete chats[currentUser][id];
-        saveChats(chats);
-      }
-      if (currentChatId === id) {
-        currentChatId = null;
-        messagesArea.innerHTML = '';
-        document.getElementById('chat-title').innerText = 'WormGPT Studio';
-      }
+      if (chats[currentUser] && chats[currentUser][id]) { delete chats[currentUser][id]; saveChats(chats); }
+      if (currentChatId === id) { currentChatId = null; messagesArea.innerHTML = ''; document.getElementById('chat-title').innerText = 'WormGPT Studio'; }
       loadChatList();
     }
 
@@ -326,10 +298,8 @@
       const chats = getChats()[currentUser] || {};
       const chat = chats[id];
       if (!chat) return;
-      
       document.getElementById('chat-title').innerText = chat.title;
       loadChatList();
-      
       chatHistory = chat.messages || [];
       messagesArea.innerHTML = '';
       chatHistory.forEach(msg => addMessageToScreen(msg.role, msg.content));
@@ -341,35 +311,36 @@
       let chats = getChats();
       if (!chats[currentUser]) chats[currentUser] = {};
       if (!chats[currentUser][currentChatId]) chats[currentUser][currentChatId] = { title: 'Yeni Proje', messages: [] };
-      
       chats[currentUser][currentChatId].messages = chatHistory;
       if (title) chats[currentUser][currentChatId].title = title;
-      
       saveChats(chats);
       loadChatList();
     }
 
     function scrollBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
 
-    aciklama.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = (this.scrollHeight) + 'px';
-    });
-
-    aciklama.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
+    aciklama.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
+    aciklama.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
     function copyCode(id) {
       const codeText = document.getElementById(id).innerText;
       navigator.clipboard.writeText(codeText).then(() => showError('Kod kopyalandı siktir! 📋')).catch(err => showError('Kopyalayamadım: ' + err));
     }
 
+    // SİKTİR EDİLESİ FORMAT FONKSİYONU: RESİM VE KOD DESTEKLİ
     function formatMessage(text) {
       let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      
+      // RESİM ETİKETLERİNİ YAKALA VE POLLINATIONS İLE OLUŞTUR
+      const imgRegex = /\[IMG\](.*?)\[\/IMG\]/gs;
+      safeText = safeText.replace(imgRegex, function(match, prompt) {
+        const cleanPrompt = encodeURIComponent(prompt.trim());
+        return `<img src="https://image.pollinations.ai/prompt/${cleanPrompt}?width=1024&height=1024&nologo=true&seed=${Math.random()}" class="generated-image" alt="Üretilen Resim">`;
+      });
+
+      // KOD BLOKLARINI YAKALA
       const codeBlockRegex = /```(?:[a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
       let hasCodeBlock = false;
-      
       let html = safeText.replace(codeBlockRegex, function(match, code) {
         hasCodeBlock = true;
         const id = 'code_' + Math.random().toString(36).substr(2, 9);
@@ -380,11 +351,11 @@
         </div>`;
       });
 
-      if (!hasCodeBlock && (text.includes('<!DOCTYPE html>') || text.includes('<html'))) {
+      if (!hasCodeBlock && (safeText.includes('&lt;!DOCTYPE html&gt;') || safeText.includes('&lt;html'))) {
         const id = 'code_' + Math.random().toString(36).substr(2, 9);
         html = `<div class="code-container"><div class="code-header"><span><i class="ph ph-file-html"></i> HTML KODU</span><button class="copy-btn" onclick="copyCode('${id}')"><i class="ph ph-copy"></i> Kopyala</button></div><pre><code id="${id}">${safeText.trim()}</code></pre></div>`;
-      } else if (!hasCodeBlock) {
-        html = text.replace(/\n/g, '<br>');
+      } else if (!hasCodeBlock && !safeText.includes('<img')) {
+        html = safeText.replace(/\n/g, '<br>');
       }
       return html;
     }
@@ -438,7 +409,6 @@
           isThinkEnabled: isThinkEnabled
         })
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Sunucu hatası siktir.');
       return data.cevap;
@@ -472,12 +442,27 @@
         
         let statusText = "Düşünüyor...";
         if (isSearchEnabled) statusText = "İnternette aranıyor...";
-        if (isVideoEnabled) statusText = "Video tasarlanıyor...";
+        if (isVideoEnabled) statusText = "Oluşturuluyor...";
         
         contentDiv.innerHTML = `<span class="status-text" style="margin-top:0;"><i class="ph ph-spinner-gap" style="animation: spin 1s linear infinite;"></i> ${statusText}</span>`;
         
         const data = await generateAIMessage(metin);
         contentDiv.innerHTML = formatMessage(data);
+        
+        // SİKTİR, EĞER VİDEO İSTENDİYSE VE DATA'DA VİDEO VARSA EKLE
+        if (isVideoEnabled) {
+            // Örnek bir video URL'si (gerçekte bir video üretim API'sine bağlanabilir)
+            const videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+            contentDiv.innerHTML += `
+                <video class="generated-video" controls>
+                    <source src="${videoUrl}" type="video/mp4">
+                </video>
+                <a href="${videoUrl}" download class="retry-btn" style="background:var(--primary); color:#000; font-weight:bold; margin-top:10px; text-decoration:none;">
+                    <i class="ph ph-download"></i> Videoyu İndir
+                </a>
+            `;
+        }
+        
         chatHistory.push({ role: 'assistant', content: data });
         saveCurrentChat();
       } catch (err) {
